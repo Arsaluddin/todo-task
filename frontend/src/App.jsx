@@ -10,10 +10,16 @@ function App() {
   // Function to add a new task
   const addTask = (title) => {
     // Create a new task object
+
+    if (title.trim() === '' || title.length > 50) {
+      alert('Task title should not be empty and should have a reasonable length.');
+      return; // Don't proceed with adding the task
+    }
+
     const newTask = { title, completed: false }; // No need to generate an ID here
 
     // Send a POST request to create the task on the backend
-    fetch('http://localhost:3000/tasks', {
+    fetch('https://to-do-task-tx20.onrender.com/tasks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,7 +37,7 @@ function App() {
   // Function to delete a task by ID
   const deleteTask = (taskId) => {
     // Send a DELETE request to delete the task on the backend
-    fetch(`http://localhost:3000/tasks/${taskId}`, {
+    fetch(`https://to-do-task-tx20.onrender.com/tasks/${taskId}`, {
       method: 'DELETE',
     })
       .then(() => {
@@ -51,7 +57,7 @@ function App() {
     const updatedTask = { ...taskToUpdate, completed: !taskToUpdate.completed };
 
     // Send a PUT request to update the task's completion status on the backend
-    fetch(`http://localhost:3000/tasks/${taskId}`, {
+    fetch(`https://to-do-task-tx20.onrender.com/tasks/${taskId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +78,7 @@ function App() {
   // useEffect to fetch tasks from the server when the component mounts
   useEffect(() => {
     // Fetch tasks from the backend
-    fetch('http://localhost:3000/tasks') // Replace with your actual API endpoint
+    fetch('https://to-do-task-tx20.onrender.com/tasks') // Replace with your actual API endpoint
       .then((response) => response.json())
       .then((data) => setTasks(data))
       .catch((error) => console.error('Error fetching tasks:', error));
