@@ -10,48 +10,72 @@ function App() {
   // Function to add a new task
   const addTask = (title) => {
     // Create a new task object
-    const newTask = { id: Date.now().toString(), title, completed: false };
+    const newTask = { title, completed: false }; // No need to generate an ID here
 
-    // Add the new task to the list of tasks
-    setTasks([...tasks, newTask]);
-
-    // TODO: Send a POST request to your backend to add the task
-    // Example: createTaskOnServer(newTask);
+    // Send a POST request to create the task on the backend
+    fetch('http://localhost:3000/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTask),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Update the front-end state with the newly created task
+        setTasks([...tasks, data]);
+      })
+      .catch((error) => console.error('Error adding task:', error));
   };
 
   // Function to delete a task by ID
   const deleteTask = (taskId) => {
-    // Filter out the task with the specified ID
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-
-    // Update the list of tasks
-    setTasks(updatedTasks);
-
-    // TODO: Send a DELETE request to your backend to delete the task
-    // Example: deleteTaskOnServer(taskId);
+    // Send a DELETE request to delete the task on the backend
+    fetch(`http://localhost:3000/tasks/${taskId}`, {
+      method: 'DELETE',
+    })
+      .then(() => {
+        // Filter out the deleted task from the front-end state
+        const updatedTasks = tasks.filter((task) => task.id !== taskId);
+        setTasks(updatedTasks);
+      })
+      .catch((error) => console.error('Error deleting task:', error));
   };
 
   // Function to toggle the completion status of a task by ID
   const toggleComplete = (taskId) => {
-    // Toggle the completion status of the task
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
-    });
+    // Find the task by ID
+    const taskToUpdate = tasks.find((task) => task.id === taskId);
 
-    // Update the list of tasks
-    setTasks(updatedTasks);
+    // Toggle the completion status
+    const updatedTask = { ...taskToUpdate, completed: !taskToUpdate.completed };
 
-    // TODO: Send a PUT request to your backend to update the task's completion status
-    // Example: updateTaskCompletionOnServer(taskId, !task.completed);
+    // Send a PUT request to update the task's completion status on the backend
+    fetch(`http://localhost:3000/tasks/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedTask),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        // Update the front-end state with the updated task
+        const updatedTasks = tasks.map((task) =>
+          task.id === taskId ? updatedTask : task
+        );
+        setTasks(updatedTasks);
+      })
+      .catch((error) => console.error('Error updating task:', error));
   };
 
   // useEffect to fetch tasks from the server when the component mounts
   useEffect(() => {
-    // TODO: Fetch tasks from your backend and update the tasks state
-    // Example: fetchTasksFromServer().then((data) => setTasks(data));
+    // Fetch tasks from the backend
+    fetch('http://localhost:3000/tasks') // Replace with your actual API endpoint
+      .then((response) => response.json())
+      .then((data) => setTasks(data))
+      .catch((error) => console.error('Error fetching tasks:', error));
   }, []);
 
   return (
